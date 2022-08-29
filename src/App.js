@@ -45,7 +45,8 @@ const Container = styled.div`
 function App() {
 
   const [todos, setTodos] = useState([]);
-  const [newTodoItem, setNewTodoItem] = useState('');
+  const [newTodoDescription, setNewTodoDescription] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     //response from api
@@ -87,38 +88,49 @@ function App() {
     let newArray = [...todos];
     switch (event) {
       case "delete":
-        console.log("delete:", newTodo);
         // ✅ Remove one object from state array
-        setTodos(sortTodoList(todos.filter(function (current,i) {
-          return index = i;
-        })));
+        console.log("delete:", newTodo, "index", index);
+        newArray = newArray.filter((current, i)=>{
+          return current.id != newTodo.id
+        })
+
+        setTodos(newArray);
         break;
         // ✅ update one object (todo item) from the array
       case "update":
         console.log("update:", newTodo);
-        newArray[index].isCompleted = newTodo.isCompleted;
+        
         newArray[index].description = newTodo.description;
-        setTodos((newArray));
+        //sort only when is completed
+        if(newArray[index].isCompleted !== newTodo.isCompleted){
+          newArray[index].isCompleted = newTodo.isCompleted;
+          return setTodos(sortTodoList(newArray));
+        }
+
+        return setTodos(newArray);
         break;
         // ✅ create one object (todo item) on the array
       case "create":
-        console.log("Create:", newTodoItem);
+        console.log("Create:", newTodoDescription);
+        setErrorMessage("");
         
-        if(newTodoItem == "")
+        if(newTodoDescription == ""){
+          setErrorMessage("Digite a descricao da tarefa");
           return; 
+        }
 
         newArray.push({
-          description : newTodoItem,
+          description : newTodoDescription,
           isCompleted : false,
           id : new Date().getUTCMilliseconds()
         })
         setTodos(sortTodoList(newArray))
 
         //clear the input 
-        setNewTodoItem("");
+        setNewTodoDescription("");
         break;
         default : 
-          console.log("Error")
+          console.log("Error");
         break;
     }
   }
@@ -132,14 +144,15 @@ function App() {
             <>
               <Container>
                 <input type={"checkbox"} checked={todo.isCompleted} onClick={() => { handleEvents("update", { ...todo, isCompleted: !todo.isCompleted }, index) }} />
-                <input type={"text"} value={todo.description} onChange={(e) => handleEvents("update", {...todo, description : e.target.value}, index)} />
+                <input style={{textDecoration : todo.isCompleted == true ? "line-through" : ""}} type={"text"} value={todo.description} onChange={(e) => handleEvents("update", {...todo, description : e.target.value}, index)} />
                 <button style={{float: "right", display: "inline-block"}} onClick={()=>handleEvents('delete',todo,index)}>Apagar</button>
               </Container>
             </>
           )
         })}
-        <input type={"text"} onChange={(e)=>setNewTodoItem(e.target.value)} value={newTodoItem} />
+        <input type={"text"} onChange={(e)=>setNewTodoDescription(e.target.value)} value={newTodoDescription} />
         <button onClick={()=>handleEvents('create')}>Add</button>
+        {errorMessage}
       </>
     </div>
   );
