@@ -87,6 +87,7 @@ function App() {
     let newArray = [...todos];
     switch (event) {
       case "delete":
+        console.log("delete:", newTodo);
         // ✅ Remove one object from state array
         setTodos(sortTodoList(todos.filter(function (current,i) {
           return index = i;
@@ -94,12 +95,18 @@ function App() {
         break;
         // ✅ update one object (todo item) from the array
       case "update":
+        console.log("update:", newTodo);
         newArray[index].isCompleted = newTodo.isCompleted;
         newArray[index].description = newTodo.description;
-        setTodos(newArray)
+        setTodos((newArray));
         break;
         // ✅ create one object (todo item) on the array
       case "create":
+        console.log("Create:", newTodoItem);
+        
+        if(newTodoItem == "")
+          return; 
+
         newArray.push({
           description : newTodoItem,
           isCompleted : false,
@@ -125,7 +132,7 @@ function App() {
             <>
               <Container>
                 <input type={"checkbox"} checked={todo.isCompleted} onClick={() => { handleEvents("update", { ...todo, isCompleted: !todo.isCompleted }, index) }} />
-                <input type={"text"} value={todo.description} onChange={(e) => handleEvents("update", e, index)} />
+                <input type={"text"} value={todo.description} onChange={(e) => handleEvents("update", {...todo, description : e.target.value}, index)} />
                 <button style={{float: "right", display: "inline-block"}} onClick={()=>handleEvents('delete',todo,index)}>Apagar</button>
               </Container>
             </>
